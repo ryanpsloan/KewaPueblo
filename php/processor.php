@@ -12,7 +12,7 @@ if(isset($_FILES)) {
         $fileData = array();
         $handle = fopen($fu->getNewFileName(), "r");
         $headers = explode(",", trim(fgets($handle)));
-        var_dump($headers);
+        //var_dump($headers);
         while(!feof($handle)){
            $fileData[] = explode(",", trim(fgets($handle)));
         }
@@ -95,6 +95,7 @@ if(isset($_FILES)) {
         //var_dump('TOBALANCE', $toBalance);
         //var_dump('OUTPUT', $output);
         //var_dump(count($toBalance));
+
         $final = array();
         foreach($toBalance as $ee => $array){
             foreach($array as $program => $arr){
@@ -130,11 +131,19 @@ if(isset($_FILES)) {
         //var_dump('FINAL BEFORE', $final);
 
         foreach($fileData as $data){
-            $final[] = $data;
+            if(is_array($data) && count($data) === 11){
+                $final[] = $data;
+            }
         }
         //var_dump(count($fileData), count($final), 'FINAL AFTER', $final);
 
-        sort($final);
+        $emp = $gl = $pro = array();
+        foreach ($final as $key => $row) {
+            $emp[$key]  = $row[2];
+            $gl[$key] = $row[5];
+            $pro[$key] = $row[6];
+        }
+        array_multisort($emp, SORT_ASC, $pro, SORT_ASC, $gl, SORT_ASC, $final);
 
         $finalDebitSum = $finalCreditSum = 0.00;
         foreach($final as $data){
