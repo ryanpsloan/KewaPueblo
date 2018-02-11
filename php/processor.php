@@ -137,13 +137,14 @@ if(isset($_FILES)) {
         }
         //var_dump(count($fileData), count($final), 'FINAL AFTER', $final);
 
-        $emp = $gl = $pro = array();
+        $emp = $gl = $pro = $comp = array();
         foreach ($final as $key => $row) {
             $emp[$key]  = $row[2];
             $gl[$key] = $row[5];
             $pro[$key] = $row[6];
+            $comp[$key] = $row[7];
         }
-        array_multisort($emp, SORT_ASC, $pro, SORT_ASC, $gl, SORT_ASC, $final);
+        array_multisort($emp, SORT_ASC, $pro, SORT_ASC, $gl, SORT_ASC, $comp, SORT_ASC, $final);
 
         $finalDebitSum = $finalCreditSum = 0.00;
         foreach($final as $data){
