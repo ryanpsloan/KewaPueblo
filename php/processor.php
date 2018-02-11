@@ -103,23 +103,24 @@ if(isset($_FILES)) {
                     foreach($a as $key => $value) {
                         //var_dump($a[$key]);
                         //var_dump($data[$ee][$program][$component][$key]);
+                        $glCodeInput = '0000';
                         if ($a[$key]['debitTest']) {
                             $newLine = array($data[$ee][$program][$component][$key]['jedate'], $data[$ee][$program][$component][$key]['check#'],
                                 $data[$ee][$program][$component][$key]['ee'], $data[$ee][$program][$component][$key]['paydate'],
-                                $data[$ee][$program][$component][$key]['fund'], '0000',
+                                $data[$ee][$program][$component][$key]['fund'], $glCodeInput,
                                 $data[$ee][$program][$component][$key]['program'], $data[$ee][$program][$component][$key]['component'],
                                 $data[$ee][$program][$component][$key]['year'], '0.00',
                                 $toBalance[$ee][$program][$component][$key]['difference']);
-                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Credit Line: $". $toBalance[$ee][$program][$component][$key]['difference']. "</strong></span>";
+                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Credit Line: $". $toBalance[$ee][$program][$component][$key]['difference']. " | GL Code: $glCodeInput</strong></span>";
 
                         } else {
                             $newLine = array($data[$ee][$program][$component][$key]['jedate'], $data[$ee][$program][$component][$key]['check#'],
                                 $data[$ee][$program][$component][$key]['ee'], $data[$ee][$program][$component][$key]['paydate'],
-                                $data[$ee][$program][$component][$key]['fund'], '0000',
+                                $data[$ee][$program][$component][$key]['fund'], $glCodeInput,
                                 $data[$ee][$program][$component][$key]['program'], $data[$ee][$program][$component][$key]['component'],
                                 $data[$ee][$program][$component][$key]['year'], $toBalance[$ee][$program][$component][$key]['difference'],
                                 '0.00');
-                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Debit Line: $". $toBalance[$ee][$program][$component][$key]['difference']."</strong></span>";
+                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Debit Line: $". $toBalance[$ee][$program][$component][$key]['difference']." | GL Code: $glCodeInput</strong></span>";
 
                         }
                         $final[] = $newLine;
@@ -171,6 +172,7 @@ if(isset($_FILES)) {
         $_SESSION['data'] = $output;
         $_SESSION['lineCount'] = count($final);
         $_SESSION['finalSum'] = $finalSum;
+        $_SESSION['message'] = 'File Balanced Successfully. Ready for Download.';
 
         header("Location: ../index.php");
 

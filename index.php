@@ -18,9 +18,11 @@ if(isset($_SESSION['data'])){
 
 if(isset($_SESSION['fileName'])){
      $download = '<a href="download.php">Download File</a>';
+     $message = $_SESSION['message'];
 }
 else{
      $download = "";
+     $message = "";
 }
 
 if(isset($_SESSION['totalSum'])){
@@ -86,14 +88,23 @@ if(isset($_SESSION['error'])){
           <article class="col-md-12 p-lg-12 mx-auto my-12">
               <h1 class="display-4 font-weight-normal">Kewa Pueblo GL Balancer</h1>
               <p class="lead font-weight-normal">Upload the Kewa GL file as a .csv or .txt</p>
+              <div id="messages" class="my-2 my-lg-0">
+                  <?php
+                      if(isset($message)) {
+                          echo "<p class='green'>$message</p>";
+                      }
+                  ?>
+              </div>
               <div id="errors" class="my-2 my-lg-0">
-                <?php ?>
+                <?php
+                    if(isset($error)){
+                        echo "<p class='red'>$error</p>";
+                    }
+                ?>
               </div>
               <div id="output" class="my-2 my-lg-0">
                   <?php
-                  if(isset($error)){
-                      echo "<p class='red'>$error</p>";
-                  }
+
                   if(isset($totalSum)) {
                       $d = number_format($totalSum['debitTotalSum'], 2);
                       $c = number_format($totalSum['creditTotalSum'], 2);
