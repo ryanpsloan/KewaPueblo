@@ -1,0 +1,35 @@
+body{
+    background-color: lightblue;
+}
+h1{
+    text-align: center;
+}
+h4{
+    text-align: center;
+}
+p{
+    text-align: center;
+}
+.heading{
+    font-weight: bold;
+    font-size: 18px;
+}
+.red{
+    color: red;
+}
+.green{
+    color: green;
+}
+.highlight{
+    background-color: cadetblue;
+    padding: 3px;
+}
+.border{
+    text-decoration: underline;
+}
+.balanceDoc{
+    text-decoration: none;
+}
+.link{
+    color: blue;
+}
