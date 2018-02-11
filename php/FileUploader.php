@@ -71,7 +71,7 @@ class FileUploader
         $dateFormat = $today->format('m-d-y-H-i-s');
         $newName = "$directory/$newFileName-$dateFormat.$this->extension";
         if(!rename("$directory/$this->fileName", $newName)){
-            throw new RuntimeException('Unable to Rename File $name to: $newName');
+            throw new RuntimeException("Unable to Rename File $this->fileName to: $newName");
         }
         $this->newFileName = $newName;
 
