@@ -55,12 +55,13 @@ if(isset($_FILES)) {
                     foreach($a as $key => $value) {
                         $debits[] = $value['debit'];
                         $credits[] = $value['credit'];
+                        $lineNumber = $value['lineNumber'];
                     }
                 }
 
                 $sumDebits = array_sum($debits);
                 $sumCredits = array_sum($credits);
-                $balance[$ee][$program][$component][] = array($sumDebits, $sumCredits);
+                $balance[$ee][$program][$component][] = array($sumDebits, $sumCredits, $lineNumber);
                 //var_dump('DEBITS', $sumDebits, $debits, 'CREDITS', $sumCredits, $credits);
             }
         }
@@ -77,6 +78,7 @@ if(isset($_FILES)) {
                         $dbt = $cdt = '';
                         $debit = round($value[0], 2);
                         $credit = round($value[1], 2);
+                        $lineNumber = $value[2];
                         if($debit === $credit){
                             $code = "$ee | $program | $component | Debit Total: $$debit | Credit Total: $$credit | <img src='img/checkmark-30x30.png' height='30' width='30'/>";
                             $output[$ee][$program][$component]['balance'] = $code;
@@ -86,13 +88,13 @@ if(isset($_FILES)) {
                                 $difference = number_format(($debit - $credit), 2);
                                 $dbt = "<span class='highlight'>Debit Total = $$debit</span>";
                                 $cdt = "Credit Total = $$credit";
-                                $toBalance[$ee][$program][$component][] = array('ee' => $ee, 'debit' => $debit, 'credit' => $credit, 'difference' => $difference, 'debitTest' => true);
+                                $toBalance[$ee][$program][$component][] = array('ee' => $ee, 'debit' => $debit, 'credit' => $credit, 'difference' => $difference, 'debitTest' => true, 'lineNumber' => $lineNumber );
                             }else if($debit < $credit){
                                 //-
                                 $difference = number_format(($credit - $debit), 2);
                                 $dbt = "Debit Total = $$debit";
                                 $cdt = "<span class='highlight'>Credit Total = $$credit</span>";
-                                $toBalance[$ee][$program][$component][] = array('ee' => $ee, 'debit' => $debit, 'credit' => $credit, 'difference' => $difference, 'debitTest' => false);
+                                $toBalance[$ee][$program][$component][] = array('ee' => $ee, 'debit' => $debit, 'credit' => $credit, 'difference' => $difference, 'debitTest' => false, 'lineNumber' => $lineNumber);
                             }
                             $code = "$ee | $program | $component | $dbt | $cdt | <span class='red'>$$difference</span>";
                             $output[$ee][$program][$component]['notBalance'] = $code;
@@ -115,22 +117,28 @@ if(isset($_FILES)) {
                         //var_dump($data[$ee][$program][$component][$key]);
                         $glCodeInput = '0000';
                         if ($a[$key]['debitTest']) {
+                            $output[$ee][$program][$component][] = "<span>Previous Credit Sum: $" . $toBalance[$ee][$program][$component][$key]['credit']."</span>";
+                            $output[$ee][$program][$component][] = "<span>Line Number: " . $toBalance[$ee][$program][$component][$key]['lineNumber']."</span>";
                             $newLine = array($data[$ee][$program][$component][$key]['jedate'], $data[$ee][$program][$component][$key]['check#'],
                                 $data[$ee][$program][$component][$key]['ee'], $data[$ee][$program][$component][$key]['paydate'],
                                 $data[$ee][$program][$component][$key]['fund'], $glCodeInput,
                                 $data[$ee][$program][$component][$key]['program'], $data[$ee][$program][$component][$key]['component'],
                                 $data[$ee][$program][$component][$key]['year'], '0.00',
-                                $toBalance[$ee][$program][$component][$key]['credit'] + $toBalance[$ee][$program][$component][$key]['difference']);
-                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Credit Line: $". $toBalance[$ee][$program][$component][$key]['difference']. " | GL Code: $glCodeInput</strong></span>";
+                                $toBalance[$ee][$program][$component][$key]['difference']);
+                            $output[$ee][$program][$component][] = "<span>New Credit Sum: $" . ($toBalance[$ee][$program][$component][$key]['credit'] + $toBalance[$ee][$program][$component][$key]['difference']) . "</span>";
+                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Credit Line: +$". $toBalance[$ee][$program][$component][$key]['difference'] . " | GL Code: $glCodeInput</strong></span>";
 
                         } else {
+                            $output[$ee][$program][$component][] = "<span>Previous Credit Sum: $" . $toBalance[$ee][$program][$component][$key]['credit']."</span>";
+                            $output[$ee][$program][$component][] = "<span>Line Number: " . $toBalance[$ee][$program][$component][$key]['lineNumber']."</span>";
                             $newLine = array($data[$ee][$program][$component][$key]['jedate'], $data[$ee][$program][$component][$key]['check#'],
                                 $data[$ee][$program][$component][$key]['ee'], $data[$ee][$program][$component][$key]['paydate'],
                                 $data[$ee][$program][$component][$key]['fund'], $glCodeInput,
                                 $data[$ee][$program][$component][$key]['program'], $data[$ee][$program][$component][$key]['component'],
-                                $data[$ee][$program][$component][$key]['year'], $toBalance[$ee][$program][$component][$key]['difference'],
-                                '0.00');
-                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Debit Line: $". $toBalance[$ee][$program][$component][$key]['difference']." | GL Code: $glCodeInput</strong></span>";
+                                $data[$ee][$program][$component][$key]['year'], '0.00',
+                                0.00 - $toBalance[$ee][$program][$component][$key]['difference']);
+                            $output[$ee][$program][$component][] = "<span>New Credit Sum: $" . ($toBalance[$ee][$program][$component][$key]['credit'] - $toBalance[$ee][$program][$component][$key]['difference']). "</span>";
+                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] &rarr; Added Credit Line: -$". $toBalance[$ee][$program][$component][$key]['difference'] ." | GL Code: $glCodeInput</strong></span>";
 
                         }
                         $final[] = $newLine;
