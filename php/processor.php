@@ -1,7 +1,7 @@
 <?php
 
 /***********************************************************************************************************************
- * Author: Ryan Pace Sloan
+ * Author: Ryan Pace Sloan (RPS)
  *
  *
  *
@@ -9,7 +9,9 @@
  *
  ***********************************************************************************************************************/
 include 'FileUploader.php';
-include '../clear.php';
+session_start();
+session_unset();
+session_destroy();
 session_start();
 if(isset($_FILES)) {
     try{
@@ -45,43 +47,45 @@ if(isset($_FILES)) {
 
         $balance = array();
         foreach($data as $ee => $array){
-
+                //if($ee === '0387-Coriz Stanley'){var_dump($array);}
             foreach($array as $program => $arr){
-
-                $debits = $credits = array();
-                $sumDebits = $sumCredits = 0.00;
-
+                //if($ee === '0387-Coriz Stanley'){var_dump($arr);}
                 foreach($arr as $component => $a){
-
+                    $debits = $credits = array();
+                    $sumDebits = $sumCredits = 0.00;
+                    //if($ee === '0387-Coriz Stanley'){var_dump($a);}
                     foreach($a as $key => $value) {
+                        //if($ee === '0387-Coriz Stanley'){var_dump($value);}
                         $debits[] = $value['debit'];
                         $credits[] = $value['credit'];
                         if($value['glCode'] === '1010') {
                             $lineNumber = $value['lineNumber'];
                         }
                     }
-                }
 
-                $sumDebits = array_sum($debits);
-                $sumCredits = array_sum($credits);
-                $balance[$ee][$program][$component][] = array($sumDebits, $sumCredits, $lineNumber);
-                //var_dump('DEBITS', $sumDebits, $debits, 'CREDITS', $sumCredits, $credits);
+                    $sumDebits = array_sum($debits);
+                    $sumCredits = array_sum($credits);
+                    $balance[$ee][$program][$component][] = array($sumDebits, $sumCredits, $lineNumber);
+                    //if($ee === '0387-Coriz Stanley'){var_dump('DEBITS', $sumDebits, $debits, 'CREDITS', $sumCredits, $credits);}
+                }
             }
         }
         //var_dump('BALANCE', $balance);
 
         $output = $toBalance = array();
         foreach($balance as $ee => $array) {
-
+            //if($ee === '0004-Pacheco Keith'){var_dump($array);}
             foreach ($array as $program => $arr) {
-
+                //if($ee === '0004-Pacheco Keith'){var_dump($arr);}
                 foreach ($arr as $component => $a) {
-
+                    //if($ee === '0004-Pacheco Keith'){var_dump($a);}
                     foreach($a as $key => $value){
+                        //if($ee === '0004-Pacheco Keith'){var_dump($value);}
                         $dbt = $cdt = '';
                         $debit = round($value[0], 2);
                         $credit = round($value[1], 2);
                         $lineNumber = $value[2];
+                        //var_dump('DEBIT', $debit, 'CREDIT', $credit, $debit === $credit, $debit == $credit);
                         if($debit === $credit){
                             $code = "$ee | $program | $component | Debit Total: $$debit | Credit Total: $$credit | <img src='img/checkmark-30x30.png' height='30' width='30'/>";
                             $output[$ee][$program][$component]['balance'] = $code;
@@ -119,7 +123,7 @@ if(isset($_FILES)) {
                     foreach($a as $key => $value) {
                         //var_dump($a[$key]);
                         //var_dump($data[$ee][$program][$component][$key]);
-                        $glCodeInput = '0000';
+                        $glCodeInput = '1010';
                         if ($a[$key]['debitTest']) {
                             $newLine = array($data[$ee][$program][$component][$key]['jedate'], $data[$ee][$program][$component][$key]['check#'],
                                 $data[$ee][$program][$component][$key]['ee'], $data[$ee][$program][$component][$key]['paydate'],
