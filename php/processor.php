@@ -23,6 +23,7 @@ if(isset($_FILES)) {
         $fileData = array();
         $handle = fopen($fu->getNewFileName(), "r");
         $headers = explode(",", trim(fgets($handle)));
+        $headers[10] = 'Credit';
         //var_dump($headers);
         while(!feof($handle)){
            $fileData[] = explode(",", trim(fgets($handle)));
@@ -131,21 +132,27 @@ if(isset($_FILES)) {
                                 $data[$ee][$program][$component][$key]['program'], $data[$ee][$program][$component][$key]['component'],
                                 $data[$ee][$program][$component][$key]['year'], '0',
                                 $toBalance[$ee][$program][$component][$key]['difference']);
+                            $output[$ee][$program][$component][] = '<div class="debit">';
                             $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] | GL Code: $glCodeInput  &rarr; Created Credit Line: +$". $toBalance[$ee][$program][$component][$key]['difference'] . " </strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>Previous Credit Sum: $" . $toBalance[$ee][$program][$component][$key]['credit']."</strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>New Credit Sum: <span class='green'>$" . number_format(($toBalance[$ee][$program][$component][$key]['credit'] + $toBalance[$ee][$program][$component][$key]['difference']),2) . "</span></strong></span>";
-
+                            $output[$ee][$program][$component][] = '</div>';
                         } else {
+                            //var_dump($value['lineNumber'], $fileData[$value['lineNumber']], $fileData[$value['lineNumber']][10]);
+                            $originalCredit = $fileData[$value['lineNumber']][10];
                             $newLine = array($data[$ee][$program][$component][$key]['jedate'], $data[$ee][$program][$component][$key]['check#'],
                                 $data[$ee][$program][$component][$key]['ee'], $data[$ee][$program][$component][$key]['paydate'],
                                 $data[$ee][$program][$component][$key]['fund'], $glCodeInput,
                                 $data[$ee][$program][$component][$key]['program'], $data[$ee][$program][$component][$key]['component'],
                                 $data[$ee][$program][$component][$key]['year'], '0',
-                                0.00 - $toBalance[$ee][$program][$component][$key]['difference']);
-                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] | GL Code: $glCodeInput &rarr; Created Credit Line: -$". $toBalance[$ee][$program][$component][$key]['difference'] ."</strong></span>";
+                                $temp = $originalCredit - $toBalance[$ee][$program][$component][$key]['difference']);
+                            $output[$ee][$program][$component][] = '<div class="credit">';
+                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] | GL Code: $glCodeInput &rarr; Modifying Credit By: -$". $toBalance[$ee][$program][$component][$key]['difference'] ."</strong></span>";
+                            $output[$ee][$program][$component][] = "<span><strong>Adjusting Line: " . (intval($value['lineNumber']) + 2) . " | Original Credit Value: $". $originalCredit ." | New Credit Value: $". $temp ."</strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>Previous Credit Sum: $" . $toBalance[$ee][$program][$component][$key]['credit']."</strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>New Credit Sum: <span class='green'>$" . number_format(($toBalance[$ee][$program][$component][$key]['credit'] - $toBalance[$ee][$program][$component][$key]['difference']),2). "</span></strong></span>";
-
+                            $output[$ee][$program][$component][] = "</div>";
+                            unset($fileData[$value['lineNumber']]);
                         }
                         $final[] = $newLine;
                         $lineCreationCount++;

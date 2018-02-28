@@ -33,3 +33,11 @@ p{
 .link{
     color: blue;
 }
+.credit{
+    border: solid darkblue 1px;
+    margin: 0px 200px 0px 200px;
+}
+.debit{
+    border: solid darkcyan 1px;
+    margin: 0px 200px 0px 200px;
+}
