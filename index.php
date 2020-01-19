@@ -141,7 +141,7 @@ if(isset($_SESSION['error'])){
 <footer class="container">
     <div class="row">
         <div class="col-md-12 p-lg-12 mx-auto my-12">
-            <p class="lead font-weight-normal">Copyright &copy; PayDay HCM 2018</p>
+            <p class="lead font-weight-normal">Copyright &copy; PayDay HCM 2020</p>
         </div>
     </div>
 </footer>
