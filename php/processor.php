@@ -22,11 +22,12 @@ if(isset($_FILES)) {
 
         $fileData = array();
         $handle = fopen($fu->getNewFileName(), "r");
-        $headers = explode(",", trim(fgets($handle)));
-        $headers[10] = 'Credit';
+        //$headers = explode(",", trim(fgetcsv($handle)));
+        //$headers[8] = 'Credit';
         //var_dump($headers);
         while(!feof($handle)){
-           $fileData[] = explode(",", trim(fgets($handle)));
+           //$fileData[] = explode(",", trim(fgetcsv($handle)));
+            $fileData[] = fgetcsv($handle, 1500, ',', '"');
         }
         fclose($handle);
         //var_dump('FILEDATA', $fileData);
@@ -34,11 +35,11 @@ if(isset($_FILES)) {
         $data = array();
         $totalDebitSum = $totalCreditSum = 0.00;
         foreach($fileData as $key => $value){
-            if(is_array($value) && count($value) === 11) {
+            if(is_array($value) && count($value) === 9) {
                 $ee = $value[1];
                 $program = $value[3];
-                $component = $value[6];
-                $data[$ee][$program][$component][] = array('eeNum' => $value[0], 'ee' => $ee, 'paydate' => $value[2], 'program' => $program, 'glCode' => $value[4], 'year' => $value[5], 'component' => $component, 'debit' => (float) $value[7], 'credit' => (float) $value[8], 'lineNumber' => $key);
+                $component = '000'; //$value[6];
+                $data[$ee][$program][$component][] = array('eeNum' => $value[0], 'ee' => $ee, 'paydate' => $value[2], 'program' => $program, 'glCode' => $value[4], 'year' => $value[5], 'component' => $component, 'debit' => (float) str_replace(',' ,'', $value[7]), 'credit' => (float) str_replace(',', '', $value[8]), 'lineNumber' => $key);
                 $totalDebitSum += $value[7];
                 $totalCreditSum += $value[8];
             }
@@ -48,15 +49,15 @@ if(isset($_FILES)) {
 
         $balance = array();
         foreach($data as $ee => $array){
-                //if($ee === '0387-Coriz Stanley'){var_dump($array);}
+            if($ee === '0049-Tortalita, Georgia A'){var_dump($ee, $array);}
             foreach($array as $program => $arr){
-                //if($ee === '0387-Coriz Stanley'){var_dump($arr);}
+                if($ee === '0049-Tortalita, Georgia A'){var_dump($arr);}
                 foreach($arr as $component => $a){
                     $debits = $credits = array();
                     $sumDebits = $sumCredits = 0.00;
-                    //if($ee === '0387-Coriz Stanley'){var_dump($a);}
+                    if($ee === '0049-Tortalita, Georgia A'){var_dump($a);}
                     foreach($a as $key => $value) {
-                        //if($ee === '0387-Coriz Stanley'){var_dump($value);}
+                        if($ee === '0049-Tortalita, Georgia A'){var_dump($value);}
                         $debits[] = $value['debit'];
                         $credits[] = $value['credit'];
                         if($value['glCode'] === '1010') {
@@ -71,7 +72,7 @@ if(isset($_FILES)) {
                 }
             }
         }
-        //var_dump('BALANCE', $balance);
+        var_dump('BALANCE', $balance);
 
         $output = $toBalance = array();
         foreach($balance as $ee => $array) {
@@ -122,32 +123,32 @@ if(isset($_FILES)) {
             foreach($array as $program => $arr){
                 foreach($arr as $component => $a){
                     foreach($a as $key => $value) {
-                        //var_dump($a[$key]);
+                        //var_dump($key, $a[$key]);
                         //var_dump($data[$ee][$program][$component][$key]);
                         $glCodeInput = '1010';
                         if ($a[$key]['debitTest']) {
                             $newLine = array($data[$ee][$program][$component][$key]['eeNum'], $data[$ee][$program][$component][$key]['ee'],
                                 $data[$ee][$program][$component][$key]['paydate'], $data[$ee][$program][$component][$key]['program'],
                                 $glCodeInput,
-                                $data[$ee][$program][$component][$key]['year'], $data[$ee][$program][$component][$key]['component'],
+                                $data[$ee][$program][$component][$key]['year'], '', /*$data[$ee][$program][$component][$key]['component'],*/
                                 '0',
                                 $toBalance[$ee][$program][$component][$key]['difference']);
                             $output[$ee][$program][$component][] = '<div class="debit">';
-                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] | GL Code: $glCodeInput  &rarr; Created Credit Line: +$". $toBalance[$ee][$program][$component][$key]['difference'] . " </strong></span>";
+                            $output[$ee][$program][$component][] = "<span><strong>$newLine[1] | $newLine[3] | $newLine[6] | GL Code: $glCodeInput  &rarr; Created Credit Line: +$". $toBalance[$ee][$program][$component][$key]['difference'] . " </strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>Previous Credit Sum: $" . $toBalance[$ee][$program][$component][$key]['credit']."</strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>New Credit Sum: <span class='green'>$" . number_format(($toBalance[$ee][$program][$component][$key]['credit'] + $toBalance[$ee][$program][$component][$key]['difference']),2) . "</span></strong></span>";
                             $output[$ee][$program][$component][] = '</div>';
                         } else {
-                            //var_dump($value['lineNumber'], $fileData[$value['lineNumber']], $fileData[$value['lineNumber']][10]);
-                            $originalCredit = $fileData[$value['lineNumber']][10];
+                            //var_dump($value['lineNumber'], $fileData[$value['lineNumber']], $fileData[$value['lineNumber']][8]);
+                            $originalCredit = $fileData[$value['lineNumber']][8];
                             $newLine = array($data[$ee][$program][$component][$key]['eeNum'], $data[$ee][$program][$component][$key]['ee'],
                                 $data[$ee][$program][$component][$key]['paydate'], $data[$ee][$program][$component][$key]['program'],
                                 $glCodeInput,
-                                $data[$ee][$program][$component][$key]['year'], $data[$ee][$program][$component][$key]['component'],
+                                $data[$ee][$program][$component][$key]['year'], '', /*$data[$ee][$program][$component][$key]['component'],*/
                                 '0',
                                 $temp = $originalCredit - $toBalance[$ee][$program][$component][$key]['difference']);
                             $output[$ee][$program][$component][] = '<div class="credit">';
-                            $output[$ee][$program][$component][] = "<span><strong>$newLine[2] | $newLine[6] | $newLine[7] | GL Code: $glCodeInput &rarr; Modifying Credit By: -$". $toBalance[$ee][$program][$component][$key]['difference'] ."</strong></span>";
+                            $output[$ee][$program][$component][] = "<span><strong>$newLine[1] | $newLine[3] | $newLine[6] | GL Code: $glCodeInput &rarr; Modifying Credit By: -$". $toBalance[$ee][$program][$component][$key]['difference'] ."</strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>Adjusting Line: " . (intval($value['lineNumber']) + 2) . " | Original Credit Value: $". $originalCredit ." | New Credit Value: $". $temp ."</strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>Previous Credit Sum: $" . $toBalance[$ee][$program][$component][$key]['credit']."</strong></span>";
                             $output[$ee][$program][$component][] = "<span><strong>New Credit Sum: <span class='green'>$" . number_format(($toBalance[$ee][$program][$component][$key]['credit'] - $toBalance[$ee][$program][$component][$key]['difference']),2). "</span></strong></span>";
@@ -164,7 +165,7 @@ if(isset($_FILES)) {
         //var_dump('FINAL BEFORE', $final);
 
         foreach($fileData as $data){
-            if(is_array($data) && count($data) === 11){
+            if(is_array($data) && count($data) === 9){
                 $final[] = $data;
             }
         }
@@ -193,7 +194,7 @@ if(isset($_FILES)) {
 
         $fileName = "/var/www/html/KewaPueblo/processed/KewaPueblo_Processed_GL_File_" .$dateFormat . ".csv";
         $handle = fopen($fileName, 'wb');
-        fputcsv($handle,$headers);
+        //fputcsv($handle,$headers);
         for($i = 0; $i < count($final); $i++){
             fputcsv($handle, $final[$i]);
         }
