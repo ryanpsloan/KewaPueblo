@@ -40,8 +40,8 @@ if(isset($_FILES)) {
                 $program = $value[3];
                 $component = '000'; //$value[6];
                 $data[$ee][$program][$component][] = array('eeNum' => $value[0], 'ee' => $ee, 'paydate' => $value[2], 'program' => $program, 'glCode' => $value[4], 'year' => $value[5], 'component' => $component, 'debit' => (float) str_replace(',' ,'', $value[7]), 'credit' => (float) str_replace(',', '', $value[8]), 'lineNumber' => $key);
-                $totalDebitSum += $value[7];
-                $totalCreditSum += $value[8];
+                $totalDebitSum += (float) str_replace(',', '', $value[7]);
+                $totalCreditSum += (float) str_replace(',', '', $value[8]);
             }
         }
         $totalSumArray = array('debitTotalSum' => $totalDebitSum, 'creditTotalSum' => $totalCreditSum);
@@ -49,15 +49,15 @@ if(isset($_FILES)) {
 
         $balance = array();
         foreach($data as $ee => $array){
-            if($ee === '0049-Tortalita, Georgia A'){var_dump($ee, $array);}
+            //if($ee === '0690-Coriz, Irvin'){var_dump($ee, $array);}
             foreach($array as $program => $arr){
-                if($ee === '0049-Tortalita, Georgia A'){var_dump($arr);}
+                //if($ee === '0690-Coriz, Irvin'){var_dump($arr);}
                 foreach($arr as $component => $a){
                     $debits = $credits = array();
                     $sumDebits = $sumCredits = 0.00;
-                    if($ee === '0049-Tortalita, Georgia A'){var_dump($a);}
+                    //if($ee === '0690-Coriz, Irvin'){var_dump($a);}
                     foreach($a as $key => $value) {
-                        if($ee === '0049-Tortalita, Georgia A'){var_dump($value);}
+                        //if($ee === '0690-Coriz, Irvin'){var_dump($value);}
                         $debits[] = $value['debit'];
                         $credits[] = $value['credit'];
                         if($value['glCode'] === '1010') {
@@ -68,11 +68,11 @@ if(isset($_FILES)) {
                     $sumDebits = array_sum($debits);
                     $sumCredits = array_sum($credits);
                     $balance[$ee][$program][$component][] = array($sumDebits, $sumCredits, $lineNumber);
-                    //if($ee === '0387-Coriz Stanley'){var_dump('DEBITS', $sumDebits, $debits, 'CREDITS', $sumCredits, $credits);}
+                    //if($ee === '0690-Coriz, Irvin'){var_dump('DEBITS', $sumDebits, $debits, 'CREDITS', $sumCredits, $credits);}
                 }
             }
         }
-        var_dump('BALANCE', $balance);
+        //var_dump('BALANCE', $balance);
 
         $output = $toBalance = array();
         foreach($balance as $ee => $array) {
@@ -140,7 +140,7 @@ if(isset($_FILES)) {
                             $output[$ee][$program][$component][] = '</div>';
                         } else {
                             //var_dump($value['lineNumber'], $fileData[$value['lineNumber']], $fileData[$value['lineNumber']][8]);
-                            $originalCredit = $fileData[$value['lineNumber']][8];
+                            $originalCredit = (float) str_replace(',', '', $fileData[$value['lineNumber']][8]);
                             $newLine = array($data[$ee][$program][$component][$key]['eeNum'], $data[$ee][$program][$component][$key]['ee'],
                                 $data[$ee][$program][$component][$key]['paydate'], $data[$ee][$program][$component][$key]['program'],
                                 $glCodeInput,
@@ -182,8 +182,8 @@ if(isset($_FILES)) {
 
         $finalDebitSum = $finalCreditSum = 0.00;
         foreach($final as $data){
-            $finalDebitSum += $data[7];
-            $finalCreditSum += $data[8];
+            $finalDebitSum += (float) str_replace(',', '', $data[7]);
+            $finalCreditSum += (float) str_replace(',', '', $data[8]);
         }
         $finalSum = array('finalDebitSum' => $finalDebitSum, 'finalCreditSum' => $finalCreditSum);
 
